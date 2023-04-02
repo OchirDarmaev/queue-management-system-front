@@ -8,8 +8,9 @@ import {
 } from "react-router-dom";
 import { ServicePointPage } from "./service-point.page";
 import { ServicePage } from "./service.page";
-import { ServicesPage } from "./Services.page";
 import { ServicePointsPage } from "./service-points.page";
+import { RegistrationTerminalPage } from "./registrationTerminal.page";
+import { ServicesPage } from "./services.page";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,6 +23,10 @@ const router = createBrowserRouter(
       />
       <Route path="/services/" element={<ServicesPage />} />
       <Route path="/services/:serviceId" element={<ServicePage />} />
+      <Route
+        path="/registrationTerminal/"
+        element={<RegistrationTerminalPage />}
+      />
     </>
   )
 );
