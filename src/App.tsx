@@ -1,6 +1,3 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { AdminPage } from "./admin.page";
 import {
@@ -12,12 +9,13 @@ import {
 import { ServicePointPage } from "./service-point.page";
 import { ServicePage } from "./service.page";
 import { ServicesPage } from "./Services.page";
+import { ServicePointsPage } from "./service-points.page";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/admin" element={<AdminPage />} />
-      <Route path="/servicePoints/" element={<ServicePointPage />} />
+      <Route path="/servicePoints/" element={<ServicePointsPage />} />
       <Route
         path="/servicePoints/:servicePointId"
         element={<ServicePointPage />}

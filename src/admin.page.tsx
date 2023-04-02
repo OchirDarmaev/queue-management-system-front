@@ -1,9 +1,14 @@
+import { CssBaseline, Link, Stack, Typography } from "@mui/material";
+
 export function AdminPage() {
   return (
-    <div>
-      <h1>Administrator</h1>
-      <a href="/services">Services</a>
-      <a href="/service-points">Service Points</a>
-    </div>
+    <>
+      <CssBaseline />
+      <Typography variant="h1">Admin</Typography>
+      <Stack>
+        <Link href="/services">Services</Link>
+        <Link href="/servicePoints">Service Points</Link>
+      </Stack>
+    </>
   );
 }

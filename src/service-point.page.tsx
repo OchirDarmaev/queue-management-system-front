@@ -1,23 +1,51 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import {
+  Button,
+  CssBaseline,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
 export function ServicePointPage() {
   const { servicePointId } = useParams();
+  const [servicePoint, setServicePoint] = useState({
+    name: "",
+    description: "",
+    serviceIds: [],
+  });
   const [services, setServices] = useState([]);
-  const [servicePoint, setServicePoint] = useState([]);
-  const [newServicePointName, setNewServicePointName] = useState("");
-
-  const servicePointsById = Object.fromEntries(
-    servicePoint.map((servicePoint) => [servicePoint.id, servicePoint])
-  );
   const serviceById = Object.fromEntries(
     services.map((service) => [service.id, service])
   );
+
   useEffect(() => {
     fetchServices();
     fetchServicePoint();
   }, []);
+
+  const res = services.reduce(
+    (acc, curr) => {
+      if (servicePoint.serviceIds.includes(curr.id)) {
+        acc.servicePointServices.push(curr);
+      } else {
+        acc.listAvailableServices.push(curr);
+      }
+      return acc;
+    },
+    {
+      servicePointServices: [],
+      listAvailableServices: [],
+    }
+  );
 
   const fetchServices = async () => {
     try {
@@ -27,105 +55,117 @@ export function ServicePointPage() {
       console.error("Error fetching services:", error);
     }
   };
-
   const fetchServicePoint = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/servicePoint/" + servicePointId
+        "http://localhost:3000/servicePoints/" + servicePointId
       );
       setServicePoint(response.data);
     } catch (error) {
-      console.error("Error fetching service points:", error);
+      console.error("Error fetching services:", error);
     }
   };
 
-  // const deleteServicePoint = async (servicePointId) => {
-  //   try {
-  //     await axios.delete(`/servicePoints/${servicePointId}`);
-  //     setServicePoints(
-  //       servicePoints.filter(
-  //         (servicePoint) => servicePoint.id !== servicePointId
-  //       )
-  //     );
-  //   } catch (error) {
-  //     console.error("Error deleting service point:", error);
-  //   }
-  // };
-
-  async function addServiceToServicePoint(
-    serviceId: string,
-    servicePointId: string
-  ): Promise<void> {
+  const save = async () => {
     try {
       await axios.put("http://localhost:3000/servicePoints/" + servicePointId, {
-        serviceIds: [
-          ...servicePointsById[servicePointId].serviceIds,
-          serviceId,
-        ],
+        name: servicePoint.name,
+        description: servicePoint.description,
       });
     } catch (error) {
-      console.error("Error adding service:", error);
+      console.error("Error saving service:", error);
     }
-  }
+  };
 
-  async function removeServiceFromServicePoint(
-    serviceId: string,
-    servicePointId: string
-  ): Promise<void> {
+  const handleChange = (prop) => (event) => {
+    setServicePoint({ ...servicePoint, [prop]: event.target.value });
+  };
+
+  async function removeService(serviceId: string) {
     try {
       await axios.put("http://localhost:3000/servicePoints/" + servicePointId, {
-        serviceIds: servicePointsById[servicePointId].serviceIds.filter(
-          (id) => id !== serviceId
-        ),
+        serviceIds: servicePoint.serviceIds.filter((id) => id !== serviceId),
       });
+      await fetchServicePoint();
     } catch (error) {
       console.error("Error removing service:", error);
     }
   }
 
+  async function addService(serviceId: string): Promise<void> {
+    try {
+      await axios.put("http://localhost:3000/servicePoints/" + servicePointId, {
+        serviceIds: [...servicePoint.serviceIds, serviceId],
+      });
+      await fetchServicePoint();
+    } catch (error) {
+      console.error("Error adding service:", error);
+    }
+  }
+
   return (
-    <div>
-      <h1>Service point</h1>
-      <p>{servicePoint.name}</p>
-      <p>{servicePoint.description}</p>
-      <ul>
-        {servicePoint.serviceIds.map((serviceId) => (
-          <li key={serviceId}>
-            <p>{serviceById[serviceId].name}</p>
-            <p>{serviceById[serviceId].description}</p>
-            <button
-              onClick={async () => {
-                await removeServiceFromServicePoint(serviceId, servicePoint.id);
-                await fetchServicePoints();
-              }}
-            >
-              remove
-            </button>
-          </li>
-        ))}
-      </ul>
-      Services
-      <ul>
-        {services
-          .filter(
-            (x) =>
-              !servicePoint.serviceIds.some((serviceId) => serviceId === x.id)
-          )
-          .map((service) => (
-            <li key={service.id}>
-              <p>{service.name}</p>
-              <p>{service.description}</p>
-              <button
-                onClick={async () => {
-                  await addServiceToServicePoint(service.id, servicePoint.id);
-                  await fetchServicePoint();
-                }}
+    <>
+      <CssBaseline />
+      <Typography variant="h4">Service point</Typography>
+      <Stack direction="column" spacing={1}>
+        <TextField
+          label="Name"
+          variant="outlined"
+          value={servicePoint.name}
+          onChange={handleChange("name")}
+        />
+        <TextField
+          label="Description"
+          variant="outlined"
+          value={servicePoint.description}
+          onChange={handleChange("description")}
+        />
+        <Button variant="contained" onClick={() => save()}>
+          Save
+        </Button>
+      </Stack>
+      {res && (
+        <>
+          <Typography variant="h4">Services</Typography>
+          <List>
+            {res.servicePointServices.map((service) => (
+              <ListItem
+                key={service.id}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => removeService(service.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                }
               >
-                Add
-              </button>
-            </li>
-          ))}
-      </ul>
-    </div>
+                <ListItemText primary={service.name} />
+              </ListItem>
+            ))}
+          </List>
+          <Typography variant="h4">Available Services</Typography>
+          <List>
+            {res.listAvailableServices.map((service) => (
+              <ListItem
+                key={service.id}
+                secondaryAction={
+                  <IconButton
+                    edge="end"
+                    aria-label="add"
+                    onClick={() => addService(service.id)}
+                  >
+                    <AddIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemText primary={service.name} />
+              </ListItem>
+            ))}
+          </List>
+        </>
+      )}
+    </>
   );
 }
