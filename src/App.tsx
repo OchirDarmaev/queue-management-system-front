@@ -11,11 +11,13 @@ import { ServicePage } from "./service.page";
 import { ServicePointsPage } from "./service-points.page";
 import { RegistrationTerminalPage } from "./registrationTerminal.page";
 import { ServicesPage } from "./services.page";
+import Board from "./Monitor";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/board" element={<Board />} />
       <Route path="/servicePoints/" element={<ServicePointsPage />} />
       <Route
         path="/servicePoints/:servicePointId"

@@ -8,11 +8,13 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import AlertDialogSlide from "./dialog.component";
 
 // show popup with client info
 export function RegistrationTerminalPage() {
   const [services, setServices] = useState([]);
   const [clientInfo, setClientInfo] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
 
   const fetchServices = async () => {
     try {
@@ -55,9 +57,10 @@ export function RegistrationTerminalPage() {
       <CssBaseline />
       <Typography variant="h1">Registration Terminal</Typography>
       <Typography variant="h2">Select service you need</Typography>
+
       <List>
         {services.map((service) => (
-          <ListItemButton onClick={() => putClientInQueue(service.id)}>
+          <ListItemButton onClick={() => setSelectedService(service)}>
             <ListItemText
               primary={service.name}
               secondary={service.description}
@@ -65,6 +68,27 @@ export function RegistrationTerminalPage() {
           </ListItemButton>
         ))}
       </List>
+      <AlertDialogSlide
+        title="Dialog"
+        text={"Please confirm" + selectedService?.name}
+        open={Boolean(selectedService)}
+        handleClose={() => setSelectedService(null)}
+        dialogActions={[
+          {
+            text: "Cancel",
+            type: "secondary",
+            onClick: () => setSelectedService(null),
+          },
+          {
+            text: "Ok",
+            type: "primary",
+            onClick: async () => {
+              await putClientInQueue(selectedService.id);
+              setSelectedService(null);
+            },
+          },
+        ]}
+      />
     </>
   );
 }
