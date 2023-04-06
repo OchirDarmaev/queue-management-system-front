@@ -77,14 +77,11 @@ import Paper from "@mui/material/Paper";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function createData(memorableId: string, servicePointNumber: number) {
-  return { memorableId, servicePointNumber };
-}
-
 export function Board() {
   const [rows, setRows] = useState<
     {
       memorableId: string;
+      status: string;
       servicePointNumber: number;
     }[]
   >([]);
@@ -93,9 +90,13 @@ export function Board() {
     (async () => {
       const res = await axios.get("http://localhost:3000/queue/status");
       const data = res.data;
-      const itemsInProgress = data.itemsInProgress;
+      const itemsInProgress = data.items;
       const rows = itemsInProgress.map((item) => {
-        return createData(item.queueItem.memorableId, item.servicePointNumber);
+        return {
+          memorableId:item.item.memorableId,
+          status:item.item.queueStatus,
+          servicePointNumber: item.servicePointNumber
+        };
       });
       setRows(rows);
     })();
@@ -107,6 +108,7 @@ export function Board() {
         <TableHead>
           <TableRow>
             <TableCell>№</TableCell>
+            <TableCell>status</TableCell>
             <TableCell align="right">Counter</TableCell>
           </TableRow>
         </TableHead>
@@ -119,6 +121,8 @@ export function Board() {
               <TableCell component="th" scope="row">
                 {row.memorableId}
               </TableCell>
+              <TableCell align="right">{row.status}</TableCell>
+
               <TableCell align="right">{row.servicePointNumber}</TableCell>
             </TableRow>
           ))}
