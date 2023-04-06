@@ -20,6 +20,7 @@ export function ServicePointPage() {
   const [servicePoint, setServicePoint] = useState({
     name: "",
     description: "",
+    servicePointNumber: "",
     serviceIds: [],
   });
   const [services, setServices] = useState([]);
@@ -71,15 +72,18 @@ export function ServicePointPage() {
       await axios.put("http://localhost:3000/servicePoints/" + servicePointId, {
         name: servicePoint.name,
         description: servicePoint.description,
+        servicePointNumber: servicePoint.servicePointNumber,
       });
     } catch (error) {
       console.error("Error saving service:", error);
     }
   };
 
-  const handleChange = (prop) => (event) => {
-    setServicePoint({ ...servicePoint, [prop]: event.target.value });
-  };
+  const handleChange =
+    (prop: "name" | "description" | "servicePointNumber") =>
+    (event: { target: { value: any } }) => {
+      setServicePoint({ ...servicePoint, [prop]: event.target.value });
+    };
 
   async function removeService(serviceId: string) {
     try {
@@ -119,6 +123,12 @@ export function ServicePointPage() {
           variant="outlined"
           value={servicePoint.description}
           onChange={handleChange("description")}
+        />
+        <TextField
+          label="Service point number"
+          variant="outlined"
+          value={servicePoint.servicePointNumber}
+          onChange={handleChange("servicePointNumber")}
         />
         <Button variant="contained" onClick={() => save()}>
           Save

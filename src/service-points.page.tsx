@@ -19,6 +19,7 @@ export function ServicePointsPage() {
   const [values, setValues] = React.useState({
     name: "",
     description: "",
+    servicePointNumber: "",
   });
 
   const handleChange = (prop) => (event) => {
@@ -34,8 +35,9 @@ export function ServicePointsPage() {
       await axios.post("http://localhost:3000/servicePoints", {
         name: values.name,
         description: values.description,
+        servicePointNumber: values.servicePointNumber,
       });
-      setValues({ name: "", description: "" });
+      setValues({ name: "", description: "", servicePointNumber: "" });
       await fetchServicePoints();
     } catch (error) {
       console.error("Error adding service point:", error);
@@ -71,6 +73,11 @@ export function ServicePointsPage() {
       <Typography variant="h1">Service Points</Typography>
       <Stack direction="row" spacing={1}>
         <TextField
+          label="Service Point Number"
+          variant="outlined"
+          onChange={handleChange("servicePointNumber")}
+        />
+        <TextField
           label="Name"
           variant="outlined"
           onChange={handleChange("name")}
@@ -104,7 +111,7 @@ export function ServicePointsPage() {
           >
             <ListItemButton href={"/servicePoints/" + servicePoint.id}>
               <ListItemText
-                primary={servicePoint.name}
+                primary={`${servicePoint.servicePointNumber} - ${servicePoint.name}`}
                 secondary={servicePoint.description}
               />
             </ListItemButton>
