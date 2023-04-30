@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { API_HOST } from "./config";
 
 export function ServicePointsPage() {
   const [servicePoints, setServicePoints] = useState([]);
@@ -32,7 +33,7 @@ export function ServicePointsPage() {
     }
 
     try {
-      await axios.post("http://localhost:3000/servicePoints", {
+      await axios.post(API_HOST + "/servicePoints", {
         name: values.name,
         description: values.description,
         servicePointNumber: values.servicePointNumber,
@@ -56,7 +57,7 @@ export function ServicePointsPage() {
   };
   const fetchServicePoints = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/servicePoints");
+      const response = await axios.get(API_HOST + "/servicePoints");
       setServicePoints(response.data);
     } catch (error) {
       console.error("Error fetching service points:", error);

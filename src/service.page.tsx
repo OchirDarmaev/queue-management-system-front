@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { API_HOST } from "./config";
 
 export function ServicePage() {
   const { serviceId } = useParams();
@@ -22,9 +23,7 @@ export function ServicePage() {
 
   const fetchService = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/services/" + serviceId
-      );
+      const response = await axios.get(API_HOST + "/services/" + serviceId);
       setService(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -33,7 +32,7 @@ export function ServicePage() {
 
   const save = async () => {
     try {
-      await axios.put("http://localhost:3000/services/" + serviceId, {
+      await axios.put(API_HOST + "/services/" + serviceId, {
         name: service.name,
         description: service.description,
       });

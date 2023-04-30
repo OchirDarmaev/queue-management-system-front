@@ -9,16 +9,27 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import AlertDialogSlide from "./dialog.component";
+import { API_HOST } from "./config";
 
 // show popup with client info
 export function RegistrationTerminalPage() {
-  const [services, setServices] = useState([]);
+  const [services, setServices] = useState<
+    {
+      id: string;
+      name: string;
+      description: string;
+    }[]
+  >([]);
   const [clientInfo, setClientInfo] = useState(null);
-  const [selectedService, setSelectedService] = useState(null);
+  const [selectedService, setSelectedService] = useState<{
+    id: string;
+    name: string;
+    description: string;
+  } | null>(null);
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/services");
+      const response = await axios.get(API_HOST + "/services");
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -28,7 +39,7 @@ export function RegistrationTerminalPage() {
   const putClientInQueue = async (serviceId: string) => {
     try {
       const response = await axios.post(
-        "http://localhost:3000/services/" + serviceId + "/queue"
+        API_HOST + "/services/" + serviceId + "/queue"
       );
       setClientInfo(response.data);
     } catch (error) {
@@ -60,7 +71,10 @@ export function RegistrationTerminalPage() {
 
       <List>
         {services.map((service) => (
-          <ListItemButton onClick={() => setSelectedService(service)}>
+          <ListItemButton
+            key={service.id}
+            onClick={() => setSelectedService(service)}
+          >
             <ListItemText
               primary={service.name}
               secondary={service.description}
@@ -68,27 +82,29 @@ export function RegistrationTerminalPage() {
           </ListItemButton>
         ))}
       </List>
-      <AlertDialogSlide
-        title="Dialog"
-        text={"Please confirm" + selectedService?.name}
-        open={Boolean(selectedService)}
-        handleClose={() => setSelectedService(null)}
-        dialogActions={[
-          {
-            text: "Cancel",
-            type: "secondary",
-            onClick: () => setSelectedService(null),
-          },
-          {
-            text: "Ok",
-            type: "primary",
-            onClick: async () => {
-              await putClientInQueue(selectedService.id);
-              setSelectedService(null);
+      {selectedService && (
+        <AlertDialogSlide
+          title="Dialog"
+          text={"Please confirm" + selectedService.name}
+          open={Boolean(selectedService)}
+          handleClose={() => setSelectedService(null)}
+          dialogActions={[
+            {
+              text: "Cancel",
+              type: "secondary",
+              onClick: () => setSelectedService(null),
             },
-          },
-        ]}
-      />
+            {
+              text: "Ok",
+              type: "primary",
+              onClick: async () => {
+                await putClientInQueue(selectedService.id);
+                setSelectedService(null);
+              },
+            },
+          ]}
+        />
+      )}
     </>
   );
 }

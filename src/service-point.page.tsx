@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { API_HOST } from "./config";
 
 export function ServicePointPage() {
   const { servicePointId } = useParams();
@@ -50,7 +51,7 @@ export function ServicePointPage() {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/services");
+      const response = await axios.get(API_HOST + "/services");
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -59,7 +60,7 @@ export function ServicePointPage() {
   const fetchServicePoint = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/servicePoints/" + servicePointId
+        API_HOST + "/servicePoints/" + servicePointId
       );
       setServicePoint(response.data);
     } catch (error) {
@@ -69,7 +70,7 @@ export function ServicePointPage() {
 
   const save = async () => {
     try {
-      await axios.put("http://localhost:3000/servicePoints/" + servicePointId, {
+      await axios.put(API_HOST + "/servicePoints/" + servicePointId, {
         name: servicePoint.name,
         description: servicePoint.description,
         servicePointNumber: servicePoint.servicePointNumber,
@@ -87,7 +88,7 @@ export function ServicePointPage() {
 
   async function removeService(serviceId: string) {
     try {
-      await axios.put("http://localhost:3000/servicePoints/" + servicePointId, {
+      await axios.put(API_HOST + "/servicePoints/" + servicePointId, {
         serviceIds: servicePoint.serviceIds.filter((id) => id !== serviceId),
       });
       await fetchServicePoint();
@@ -98,7 +99,7 @@ export function ServicePointPage() {
 
   async function addService(serviceId: string): Promise<void> {
     try {
-      await axios.put("http://localhost:3000/servicePoints/" + servicePointId, {
+      await axios.put(API_HOST + "/servicePoints/" + servicePointId, {
         serviceIds: [...servicePoint.serviceIds, serviceId],
       });
       await fetchServicePoint();

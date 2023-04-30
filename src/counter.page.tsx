@@ -12,6 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { API_HOST } from "./config";
 
 export function CounterPage() {
   const { servicePointId } = useParams();
@@ -20,6 +21,7 @@ export function CounterPage() {
     description: "",
     servicePointNumber: "",
     serviceIds: [],
+    servicePointStatus: "",
   });
   const [services, setServices] = useState([]);
 
@@ -47,7 +49,7 @@ export function CounterPage() {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/services");
+      const response = await axios.get(API_HOST + "/services");
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -56,13 +58,13 @@ export function CounterPage() {
   const fetchServicePoint = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/servicePoints/" + servicePointId
+        API_HOST + "/servicePoints/" + servicePointId
       );
       setServicePoint(response.data);
 
       if (response.data.currentQueueItem) {
         const queueResponse = await axios.get(
-          "http://localhost:3000/queue/" + response.data.currentQueueItem
+          API_HOST + "/queue/" + response.data.currentQueueItem
         );
         setQueue(queueResponse.data);
       } else {
@@ -77,11 +79,8 @@ export function CounterPage() {
     status: "waiting" | "in-service" | "closed"
   ) => {
     try {
-      const response = await axios.put(
-        "http://localhost:3000/servicePoints/" +
-          servicePointId +
-          "/status/" +
-          status
+      await axios.put(
+        API_HOST + "/servicePoints/" + servicePointId + "/status/" + status
       );
     } catch (error) {
       console.error("Error fetching services:", error);

@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { API_HOST } from "./config";
 export function ServicesPage() {
   const [services, setServices] = useState([]);
   const [values, setValues] = React.useState({
@@ -30,7 +31,7 @@ export function ServicesPage() {
     }
 
     try {
-      await axios.post("http://localhost:3000/services", {
+      await axios.post(API_HOST + "/services", {
         name: values.name,
         description: values.description,
       });
@@ -51,7 +52,7 @@ export function ServicesPage() {
   };
   const fetchServices = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/services");
+      const response = await axios.get(API_HOST + "/services");
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
