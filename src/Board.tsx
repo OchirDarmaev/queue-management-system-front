@@ -8,7 +8,7 @@ import Paper from "@mui/material/Paper";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { API_HOST } from "./config";
-import { config } from "aws-sdk";
+import { Auth, PubSub } from "aws-amplify";
 
 export function Board() {
   const [rows, setRows] = useState<
@@ -18,14 +18,21 @@ export function Board() {
       servicePointNumber: number;
     }[]
   >([]);
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  const [testMsg, setTestMsg] = useState<string>("hello PubSub");
 
   useEffect(() => {
     (async () => {
+      const user = await Auth.currentSession();
+      const token = user.getIdToken().getJwtToken();
+      const email = user.getIdToken().payload.email;
+      setUserEmail(email);
       const res = await axios.get(API_HOST + "/queue/status", {
         headers: {
           Authorization:
             // todo
-            "Bearer xxxx",
+            "Bearer " + token,
         },
       });
       const data = res.data;
@@ -46,8 +53,34 @@ export function Board() {
     })();
   }, []);
 
+  useEffect(() => {
+    console.log("useEffect PubSub.subscribe");
+    Auth.currentCredentials().then((info) => {
+      const cognitoIdentityId = info.identityId;
+      console.log("cognitoIdentityId", cognitoIdentityId);
+    });
+
+    const handleIncomingMessage = (data) => {
+      setTestMsg(JSON.stringify(data.value));
+    };
+
+    const subscription = PubSub.subscribe(
+      "queue-management-system/dev/test-topic"
+    ).subscribe({
+      next: handleIncomingMessage,
+      error: (error) => console.error(error),
+      close: () => console.log("Done"),
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <TableContainer component={Paper}>
+      <p>{userEmail}</p>
+      <p>{testMsg}</p>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>

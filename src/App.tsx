@@ -13,6 +13,7 @@ import { RegistrationTerminalPage } from "./registrationTerminal.page";
 import { ServicesPage } from "./services.page";
 import { Board } from "./Board";
 import { CounterPage } from "./counter.page";
+import { withAuthenticator } from "@aws-amplify/ui-react";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -38,9 +39,14 @@ const router = createBrowserRouter(
     </>
   )
 );
+import { awsConfig, awsIoTConfig } from "./aws-exports";
+import { Amplify } from "aws-amplify";
+import { AWSIoTProvider } from "@aws-amplify/pubsub";
+Amplify.configure(awsConfig);
+Amplify.addPluggable(new AWSIoTProvider(awsIoTConfig));
 
 function App() {
   return <RouterProvider router={router} />;
 }
 
-export default App;
+export default withAuthenticator(App);
