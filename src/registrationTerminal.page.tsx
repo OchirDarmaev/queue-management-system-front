@@ -10,6 +10,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import AlertDialogSlide from "./dialog.component";
 import { API_HOST } from "./config";
+import { Auth } from "aws-amplify";
 
 // show popup with client info
 export function RegistrationTerminalPage() {
@@ -29,7 +30,15 @@ export function RegistrationTerminalPage() {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get(API_HOST + "/services");
+      const user = await Auth.currentSession();
+      const token = user.getIdToken().getJwtToken();
+      const response = await axios.get(API_HOST + "/services", {
+        headers: {
+          Authorization:
+            // todo
+            "Bearer " + token,
+        },
+      });
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -38,8 +47,18 @@ export function RegistrationTerminalPage() {
 
   const putClientInQueue = async (serviceId: string) => {
     try {
+      const user = await Auth.currentSession();
+      const token = user.getIdToken().getJwtToken();
       const response = await axios.post(
-        API_HOST + "/services/" + serviceId + "/queue"
+        API_HOST + "/services/" + serviceId + "/queue",
+        undefined,
+        {
+          headers: {
+            Authorization:
+              // todo
+              "Bearer " + token,
+          },
+        }
       );
       setClientInfo(response.data);
     } catch (error) {

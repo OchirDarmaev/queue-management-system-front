@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { API_HOST } from "./config";
+import { Auth } from "aws-amplify";
 
 export function ServicePointsPage() {
   const [servicePoints, setServicePoints] = useState([]);
@@ -57,7 +58,13 @@ export function ServicePointsPage() {
   };
   const fetchServicePoints = async () => {
     try {
-      const response = await axios.get(API_HOST + "/servicePoints");
+      const user = await Auth.currentSession();
+      const token = user.getIdToken().getJwtToken();
+      const response = await axios.get(API_HOST + "/servicePoints", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
       setServicePoints(response.data);
     } catch (error) {
       console.error("Error fetching service points:", error);

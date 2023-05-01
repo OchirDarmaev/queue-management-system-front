@@ -50,6 +50,7 @@ export function Board() {
         }
       );
       setRows(rows);
+      setTestMsg(JSON.stringify(rows));
     })();
   }, []);
 
@@ -61,11 +62,27 @@ export function Board() {
     });
 
     const handleIncomingMessage = (data) => {
-      setTestMsg(JSON.stringify(data.value));
+      const msg = JSON.stringify(data.value.items);
+      console.log("handleIncomingMessage", msg);
+      const itemsInProgress = data.value.items;
+      const rows = itemsInProgress.map(
+        (item: {
+          item: { memorableId: any; queueStatus: any };
+          servicePointNumber: any;
+        }) => {
+          return {
+            memorableId: item.item.memorableId,
+            status: item.item.queueStatus,
+            servicePointNumber: item.servicePointNumber,
+          };
+        }
+      );
+      setRows(rows);
+      setTestMsg(JSON.stringify(rows));
     };
 
     const subscription = PubSub.subscribe(
-      "queue-management-system/dev/test-topic"
+      "queue-management-system/dev/board"
     ).subscribe({
       next: handleIncomingMessage,
       error: (error) => console.error(error),
@@ -79,8 +96,8 @@ export function Board() {
 
   return (
     <TableContainer component={Paper}>
-      <p>{userEmail}</p>
-      <p>{testMsg}</p>
+      {/* <p>{userEmail}</p>
+      <p>{testMsg}</p> */}
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>

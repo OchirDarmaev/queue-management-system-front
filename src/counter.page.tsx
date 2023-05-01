@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { API_HOST } from "./config";
+import { Auth } from "aws-amplify";
 
 export function CounterPage() {
   const { servicePointId } = useParams();
@@ -49,7 +50,13 @@ export function CounterPage() {
 
   const fetchServices = async () => {
     try {
-      const response = await axios.get(API_HOST + "/services");
+      const user = await Auth.currentSession();
+      const token = user.getIdToken().getJwtToken();
+      const response = await axios.get(API_HOST + "/services", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setServices(response.data);
     } catch (error) {
       console.error("Error fetching services:", error);
@@ -57,14 +64,28 @@ export function CounterPage() {
   };
   const fetchServicePoint = async () => {
     try {
+      const user = await Auth.currentSession();
+      const token = user.getIdToken().getJwtToken();
       const response = await axios.get(
-        API_HOST + "/servicePoints/" + servicePointId
+        API_HOST + "/servicePoints/" + servicePointId,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setServicePoint(response.data);
 
       if (response.data.currentQueueItem) {
+        const user = await Auth.currentSession();
+        const token = user.getIdToken().getJwtToken();
         const queueResponse = await axios.get(
-          API_HOST + "/queue/" + response.data.currentQueueItem
+          API_HOST + "/queue/" + response.data.currentQueueItem,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         setQueue(queueResponse.data);
       } else {
@@ -79,8 +100,17 @@ export function CounterPage() {
     status: "waiting" | "in-service" | "closed"
   ) => {
     try {
+      const user = await Auth.currentSession();
+      const token = user.getIdToken().getJwtToken();
+      console.log("token", token);
       await axios.put(
-        API_HOST + "/servicePoints/" + servicePointId + "/status/" + status
+        API_HOST + "/servicePoints/" + servicePointId + "/status/" + status,
+        undefined,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
     } catch (error) {
       console.error("Error fetching services:", error);
